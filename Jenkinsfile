@@ -51,13 +51,15 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 withCredentials([file(
-                    credentialsId: '110858785515870588284',
+                    credentialsId: 'gcp-service-account',
                     variable: 'GCP_KEY'
                 )]) {
                     bat """
                         gcloud auth activate-service-account --key-file=%GCP_KEY%
                         gcloud config set project %PROJECT_ID%
                         gcloud container clusters get-credentials %CLUSTER_NAME% --zone %CLUSTER_ZONE% --project %PROJECT_ID%
+                        kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/service.yaml
                         kubectl set image deployment/%DEPLOYMENT_NAME% %CONTAINER_NAME%=%IMAGE_NAME%:%IMAGE_TAG%
                         kubectl rollout restart deployment/%DEPLOYMENT_NAME%
                         kubectl rollout status deployment/%DEPLOYMENT_NAME%
@@ -68,7 +70,7 @@ pipeline {
 
     }
     post {
-        success { echo 'Deployed to GKE successfully! Changes are live! 🚀' }
+        success { echo 'Deployed to GKE! Changes are live! 🚀' }
         failure { echo 'Pipeline failed. Check logs.' }
         always  { bat 'docker logout' }
     }
