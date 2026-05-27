@@ -67,15 +67,15 @@ pipeline {
                     bat """
                         gcloud auth activate-service-account --key-file=%GCP_KEY%
 
-                        gcloud config set project %PROJECT_ID%
+                        gcloud config set project devops-k8s-project
 
-                        gcloud container clusters get-credentials %CLUSTER_NAME% --zone %CLUSTER_ZONE% --project %PROJECT_ID%
+                        gcloud container clusters get-credentials flask-cluster111 --zone us-central1-a
 
-                        kubectl set image deployment/%DEPLOYMENT_NAME% %CONTAINER_NAME%=%IMAGE_NAME%:%IMAGE_TAG%
+                        kubectl set image deployment/k8s/deployment.yaml
 
-                        kubectl rollout restart deployment/%DEPLOYMENT_NAME%
+                        kubectl rollout restart deployment/k8s/deployment.yaml
 
-                        kubectl rollout status deployment/%DEPLOYMENT_NAME%
+                        kubectl rollout status deployment/k8s/deployment.yaml
                     """
                 }
             }
