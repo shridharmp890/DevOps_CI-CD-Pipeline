@@ -1,19 +1,21 @@
+cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-app
+  name: flask-devops-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: flask-app
+      app: flask-devops-app
   template:
     metadata:
       labels:
-        app: flask-app
+        app: flask-devops-app
     spec:
       containers:
-      - name: flask-app
-        image: YOUR_DOCKERHUB_USERNAME/flask-devops-app
+      - name: flask-devops-app
+        image: shridhar8899/flask-devops-app:latest
         ports:
         - containerPort: 5000
+EOF
