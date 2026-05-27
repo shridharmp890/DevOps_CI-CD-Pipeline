@@ -51,7 +51,7 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 withCredentials([file(
-                    credentialsId: 'gcp-service-account',
+                    credentialsId: '110858785515870588284',
                     variable: 'GCP_KEY'
                 )]) {
                     bat """
