@@ -1,4 +1,3 @@
-cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,6 +15,6 @@ spec:
       containers:
       - name: flask-devops-app
         image: shridhar8899/flask-devops-app:latest
+        imagePullPolicy: Always        # ← THIS IS THE KEY FIX
         ports:
         - containerPort: 5000
-EOF
