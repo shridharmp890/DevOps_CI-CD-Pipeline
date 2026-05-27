@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME   = "shridhar8899/flask-devops-app"
-        DOCKER_HOST  = "tcp://localhost:2375"
+        IMAGE_TAG    = "${BUILD_NUMBER}"
 
         PROJECT_ID   = "devops-k8s-project-497606"
         CLUSTER_NAME = "flask-cluster111"
@@ -13,6 +13,10 @@ pipeline {
         CONTAINER_NAME  = "flask-devops-app"
 
         USE_GKE_GCLOUD_AUTH_PLUGIN = "True"
+    }
+
+    triggers {
+        githubPush()
     }
 
     stages {
@@ -26,23 +30,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %IMAGE_NAME%:latest .'
+                bat """
+                    docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
+                    docker tag %IMAGE_NAME%:%IMAGE_TAG% %IMAGE_NAME%:latest
+                """
             }
         }
 
         stage('Push Docker Image') {
             steps {
+
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
 
-                    bat '''
+                    bat """
                         docker login -u %DOCKER_USER% -p %DOCKER_PASS%
 
+                        docker push %IMAGE_NAME%:%IMAGE_TAG%
                         docker push %IMAGE_NAME%:latest
-                    '''
+                    """
                 }
             }
         }
@@ -55,26 +64,23 @@ pipeline {
                     variable: 'GCP_KEY'
                 )]) {
 
-                    bat '''
+                    bat """
                         gcloud auth activate-service-account --key-file=%GCP_KEY%
 
                         gcloud config set project %PROJECT_ID%
 
                         gcloud container clusters get-credentials %CLUSTER_NAME% --zone %CLUSTER_ZONE% --project %PROJECT_ID%
 
-                        kubectl apply -f k8s/deployment.yaml --validate=false
-
-                        kubectl apply -f k8s/service.yaml --validate=false
-
-                        kubectl set image deployment/%DEPLOYMENT_NAME% %CONTAINER_NAME%=%IMAGE_NAME%:latest
+                        kubectl set image deployment/%DEPLOYMENT_NAME% %CONTAINER_NAME%=%IMAGE_NAME%:%IMAGE_TAG%
 
                         kubectl rollout restart deployment/%DEPLOYMENT_NAME%
 
                         kubectl rollout status deployment/%DEPLOYMENT_NAME%
-                    '''
+                    """
                 }
             }
         }
+
     }
 
     post {
