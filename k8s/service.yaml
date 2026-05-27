@@ -1,14 +1,12 @@
-kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-devops-app
+  name: flask-service
 spec:
   selector:
-    app: flask-devops-app
+    app: flask-app
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 5000
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
   type: LoadBalancer
-EOF
