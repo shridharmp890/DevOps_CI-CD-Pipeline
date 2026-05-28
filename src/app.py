@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Jenkins + Docker + Kubernetes Integration Successful! by Shridhar mp"
+    return "Jenkins + Docker + Kubernetes Integration Successful! by Shridhar padashetty"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
